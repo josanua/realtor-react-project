@@ -1,13 +1,19 @@
-import { useState } from 'react'
-
-import './App.css'
+import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
+import Home from "./pages/Home.jsx";
+import Profile from "./pages/Profile.jsx";
+import SignIn from "./pages/SignIn.jsx";
+import SignUp from "./pages/SignUp.jsx";
+import Offers from "./pages/Offers.jsx";
+import ForgotPassword from "./pages/ForgotPassword.jsx";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
-        <h1 className="text-2xl bg-red-500 text-white">Hello</h1>
+        <Router>
+            <Routes>
+                <Route path="/" element={<Home/>} />
+            </Routes>
+        </Router>
     </>
   )
 }
