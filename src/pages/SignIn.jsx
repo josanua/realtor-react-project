@@ -1,6 +1,7 @@
 import {useState} from "react";
 import {AiFillEye, AiFillEyeInvisible} from "react-icons/ai";
 import {Link} from "react-router-dom";
+import OAuth from "../components/OAuth.jsx";
 
 
 export default function SignIn() {
@@ -93,6 +94,7 @@ export default function SignIn() {
                             className="flex items-center  my-4 before:border-t before:flex-1 before:border-gray-300 after:border-t after:flex-1 after:border-gray-300">
                             <p className="text-center font-semibold mx-4">OR</p>
                         </div>
+                        <OAuth/>
                     </form>
                 </div>
             </div>
