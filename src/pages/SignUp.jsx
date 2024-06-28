@@ -10,6 +10,7 @@ import {
 import {db} from "../firebase.js";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import {useNavigate} from "react-router-dom";
+import { toast } from 'react-toastify';
 
 
 export default function SignUp() {
@@ -44,10 +45,11 @@ export default function SignUp() {
             await setDoc(doc(db, "users", user.uid), formDataCopy);
 
             console.log(user);
+            // toast.success("Signup successful");
 
             navigate("/");
         } catch (error) {
-            console.log(error)
+            toast.error(error.message);
         }
     }
 
