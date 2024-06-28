@@ -1,16 +1,14 @@
 import {useState} from "react";
 import {AiFillEye, AiFillEyeInvisible} from "react-icons/ai";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import OAuth from "../components/OAuth.jsx";
 import {
     getAuth,
-    createUserWithEmailAndPassword,
-    updateProfile,
+    createUserWithEmailAndPassword
 } from "firebase/auth";
 import {db} from "../firebase.js";
-import { doc, serverTimestamp, setDoc } from "firebase/firestore";
-import {useNavigate} from "react-router-dom";
-import { toast } from 'react-toastify';
+import {doc, serverTimestamp, setDoc} from "firebase/firestore";
+import {toast} from 'react-toastify';
 
 
 export default function SignUp() {
@@ -20,7 +18,7 @@ export default function SignUp() {
         email: "",
         password: "",
     });
-    const {name, email, password } = formData;
+    const {name, email, password} = formData;
     const navigate = useNavigate();
 
     function onChange(e) {
@@ -30,14 +28,14 @@ export default function SignUp() {
         }));
     }
 
-    async function onSubmit(e){
+    async function onSubmit(e) {
         e.preventDefault();
 
         try {
             const auth = getAuth()
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
-            const formDataCopy = { ...formData };
+            const formDataCopy = {...formData};
 
             delete formDataCopy.password;
             formDataCopy.timestamp = serverTimestamp();
