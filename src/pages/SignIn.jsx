@@ -1,7 +1,12 @@
 import {useState} from "react";
 import {AiFillEye, AiFillEyeInvisible} from "react-icons/ai";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import OAuth from "../components/OAuth.jsx";
+import {getAuth, signInWithEmailAndPassword} from "firebase/auth";
+import {toast} from 'react-toastify';
+
+// import {db} from "../firebase.js";
+// import {doc, getDoc} from "firebase/firestore";
 
 
 export default function SignIn() {
@@ -11,6 +16,7 @@ export default function SignIn() {
         password: "",
     });
     const { email, password } = formData;
+    const navigate = useNavigate();
 
     function onChange(e) {
         setFormData((prevState) => ({
@@ -19,8 +25,23 @@ export default function SignIn() {
         }));
     }
 
-    function onSubmit(){
-        console.log('Form submitted');
+    async function onSubmit(e){
+        e.preventDefault();
+
+        try {
+            const auth = getAuth();
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+            if ( userCredential.user ){
+                console.log('Credential: ');
+                console.log(userCredential.user);
+                navigate("/");
+            }
+
+            console.log('Form submitted');
+        } catch (error) {
+            toast.error(error.message);
+        }
     }
 
     return (
