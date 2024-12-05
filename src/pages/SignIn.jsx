@@ -5,10 +5,6 @@ import OAuth from "../components/OAuth.jsx";
 import {getAuth, signInWithEmailAndPassword} from "firebase/auth";
 import {toast} from 'react-toastify';
 
-// import {db} from "../firebase.js";
-// import {doc, getDoc} from "firebase/firestore";
-
-
 export default function SignIn() {
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({

@@ -1,7 +1,8 @@
 import {useState} from "react";
 import {Link} from "react-router-dom";
 import OAuth from "../components/OAuth.jsx";
-
+import {toast} from "react-toastify";
+import {getAuth, sendPasswordResetEmail} from "firebase/auth";
 
 export default function ForgotPassword() {
     const [email, setEmail] = useState("");
@@ -10,8 +11,17 @@ export default function ForgotPassword() {
         setEmail(e.target.value);
     }
 
-    function onSubmit(){
-        console.log('Form submitted');
+
+    async function onSubmit(e){
+        e.preventDefault();
+
+        try {
+            const auth = getAuth();
+            await sendPasswordResetEmail(auth, email);
+            toast.success("Reset password email sent");
+        } catch (error) {
+            toast.error("Could not send reset password" + error.message);
+        }
     }
 
     return (
