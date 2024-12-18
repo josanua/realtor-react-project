@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 export default function OAuth() {
     const navigate = useNavigate();
     async function onGoogleClick() {
-
         try {
             const auth = getAuth();
             const provider = new GoogleAuthProvider();

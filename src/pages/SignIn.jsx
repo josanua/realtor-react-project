@@ -4,6 +4,7 @@ import {Link, useNavigate} from "react-router-dom";
 import OAuth from "../components/OAuth.jsx";
 import {getAuth, signInWithEmailAndPassword} from "firebase/auth";
 import {toast} from 'react-toastify';
+import log from "eslint-plugin-react/lib/util/log.js";
 
 export default function SignIn() {
     const [showPassword, setShowPassword] = useState(false);
@@ -15,6 +16,7 @@ export default function SignIn() {
     const navigate = useNavigate();
 
     function onChange(e) {
+        console.log(e);
         setFormData((prevState) => ({
             ...prevState,
             [e.target.id]: e.target.value
