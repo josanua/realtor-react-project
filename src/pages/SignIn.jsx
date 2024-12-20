@@ -35,8 +35,6 @@ export default function SignIn() {
                 console.log(userCredential.user);
                 navigate("/");
             }
-
-            console.log('Form submitted');
         } catch (error) {
             toast.error(error.message);
         }
