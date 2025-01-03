@@ -1,8 +1,9 @@
 import {useState} from "react";
 import {getAuth, updateProfile} from "firebase/auth";
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {toast} from "react-toastify";
 import {updateDoc} from "firebase/firestore";
+import {FcHome} from "react-icons/fc";
 
 export default function Profile() {
     const auth = getAuth();
@@ -48,7 +49,7 @@ export default function Profile() {
         <>
             <section className="max-w-6xl mx-auto flex justify-center items-center flex-col">
                 <h1 className="text-3xl text-center mt-6 font-bold">My Profile</h1>
-                <div className="w-full md:w-[67%] lg:w-[40%] lg:ml-20 mt-6 px-3">
+                <div className="w-full md:w-[50%] mt-6 px-3">
                     <form className="mt-6">
                         {/* Name input */}
                         <input
@@ -89,6 +90,12 @@ export default function Profile() {
                             >Sign out</p>
                         </div>
                     </form>
+                    <button type="submit" className="w-full bg-blue-600 text-white uppercase px-7 py-3 text-sm font-medium rounded shadow-md hover:bg-blue-700 transition duration-150 ease-in-out hover:shadow-lg active:bg-blue-800 ">
+                        <Link to="/create-listing" className="flex justify-center items-center">
+                            <FcHome className="mr-2 text-3xl bg-red-200 rounded-full p-1 border-2"/>
+                            Sell or Rent your home here.
+                        </Link>
+                    </button>
                 </div>
             </section>
         </>
