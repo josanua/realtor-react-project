@@ -1,8 +1,9 @@
 import {useState} from "react";
 import Spinner from "../components/Spinner";
+import {toast} from 'react-toastify';
 
 export default function CreateListing() {
-    const [geolocationEnabled, setGeolocationEnabled] = useState(true);
+    const [geolocationEnabled, setGeolocationEnabled] = useState(false);
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         type: "rent",
@@ -38,12 +39,70 @@ export default function CreateListing() {
     } = formData;
 
 
-    function onChange() {
+    function onChange(e) {
+        let boolean = null;
 
+        if(e.target.value === "true" || e.target.value === "false"){
+            boolean = e.target.value === "true" ? true : false;
+        }
+
+        // files
+        if(e.target.files) {
+            setFormData((prevState) => ({
+                ...prevState,
+                [e.target.id]: e.target.files
+            }));
+        }
+
+        // text/boolean/number
+        if(!e.target.files) {
+            setFormData((prevState) => ({
+                ...prevState,
+                [e.target.id]: boolean ?? e.target.value,
+            }));
+            console.log(e.target.value);
+        }
     }
 
-    function onSubmit(e) {
+    async function onSubmit(e) {
+        e.preventDefault();
+        setLoading(true);
 
+        if(discountedPrice >= regularPrice) {
+            setLoading(false);
+            toast.error("Discounted price must be lower than regular price");
+        }
+
+        if(images.length > 6) {
+            setLoading(false);
+            toast.error("You can only upload 6 images");
+        }
+
+        let geolocation = {};
+        let location
+
+        if (geolocationEnabled) {
+            const response = await fetch(
+                `https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${process.env.REACT_APP_GEOCODE_API_KEY}`
+            );
+            const data = await response.json();
+            console.log(data);
+            geolocation.lat = data.results[0]?.geometry.location.lat ?? 0;
+            geolocation.lng = data.results[0]?.geometry.location.lng ?? 0;
+
+            location = data.status === "ZERO_RESULTS" && undefined;
+
+            if (location === undefined) {
+                setLoading(false);
+                toast.error("please enter a correct address");
+                return;
+            }
+        } else {
+            geolocation.lat = latitude;
+            geolocation.lng = longitude;
+        }
+
+        return;
     }
 
     if (loading) {
