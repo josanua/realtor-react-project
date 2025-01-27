@@ -1,8 +1,13 @@
 import {useState} from "react";
 import Spinner from "../components/Spinner";
 import {toast} from 'react-toastify';
+import {getStorage, ref, uploadBytesResumable, getDownloadURL} from "firebase/storage";
+import {getAuth} from "firebase/auth";
+import {addDoc, collection, serverTimestamp} from "firebase/firestore";
+import {db} from "../firebase.js";
 
 export default function CreateListing() {
+    const auth = getAuth();
     const [geolocationEnabled, setGeolocationEnabled] = useState(false);
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -42,12 +47,12 @@ export default function CreateListing() {
     function onChange(e) {
         let boolean = null;
 
-        if(e.target.value === "true" || e.target.value === "false"){
+        if (e.target.value === "true" || e.target.value === "false") {
             boolean = e.target.value === "true" ? true : false;
         }
 
         // files
-        if(e.target.files) {
+        if (e.target.files) {
             setFormData((prevState) => ({
                 ...prevState,
                 [e.target.id]: e.target.files
@@ -55,25 +60,25 @@ export default function CreateListing() {
         }
 
         // text/boolean/number
-        if(!e.target.files) {
+        if (!e.target.files) {
             setFormData((prevState) => ({
                 ...prevState,
                 [e.target.id]: boolean ?? e.target.value,
             }));
-            console.log(e.target.value);
+            // console.log(e.target.value);
         }
-    }
+    } // onChange
 
     async function onSubmit(e) {
         e.preventDefault();
         setLoading(true);
 
-        if(discountedPrice >= regularPrice) {
+        if (discountedPrice >= regularPrice) {
             setLoading(false);
             toast.error("Discounted price must be lower than regular price");
         }
 
-        if(images.length > 6) {
+        if (images.length > 6) {
             setLoading(false);
             toast.error("You can only upload 6 images");
         }
@@ -102,11 +107,74 @@ export default function CreateListing() {
             geolocation.lng = longitude;
         }
 
-        return;
+        // upload img with Firebase API
+        // https://firebase.google.com/docs/storage/web/upload-files#web_12
+        async function storeImage(image) {
+            return new Promise((resolve, reject) => {
+                const storage = getStorage();
+                const filename = `${auth.currentUser.uid}-${image.name}-${Date.now()}`;
+                const storageRef = ref(storage, filename);
+
+                const uploadTask = uploadBytesResumable(storageRef, image);
+                uploadTask.on('state_changed',
+                    (snapshot) => {
+                        // Observe state change events such as progress, pause, and resume
+                        // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        console.log('Upload is ' + progress + '% done');
+                        switch (snapshot.state) {
+                            case 'paused':
+                                console.log('Upload is paused');
+                                break;
+                            case 'running':
+                                console.log('Upload is running');
+                                break;
+                        }
+                    },
+                    (error) => {
+                        // Handle unsuccessful uploads
+                        reject(error);
+                    },
+                    () => {
+                        // Handle successful uploads on complete
+                        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                            resolve(downloadURL);
+                        });
+                    }
+                );
+
+            })
+        }
+
+        const imgUrls = await Promise.all(
+            [...images].map((image) => storeImage(image))
+        ).catch((err) => {
+            setLoading(false);
+            console.log(err);
+            toast.error("Images not uploaded, please try again later");
+            return []; // Avoid returning undefined in case of failure
+        });
+
+        const formDataCopy = {
+            ...formData,
+            imgUrls,
+            geolocation,
+            timestamp: serverTimestamp(),
+        };
+
+        delete formDataCopy.images;
+        !formDataCopy.offer && delete formDataCopy.discountedPrice;
+        const docRef = await addDoc(collection(db, "listings"), formDataCopy);
+        setLoading(false);
+        toast.success("Listing created successfully");
+        setTimeout(() => {
+            window.location.href = "/";
+        }, 1000);
+
     }
 
     if (loading) {
-        return <Spinner />;
+        return <Spinner/>;
     }
 
     return (
@@ -251,10 +319,10 @@ export default function CreateListing() {
                                 id="latitude"
                                 value={latitude}
                                 onChange={onChange}
-                                required
                                 min="-90"
                                 max="90"
                                 className="w-full px-4 py-2 text-xl text-gray-700 bg-white border border-gray-300 rounded transition duration-150 ease-in-out focus:bg-white focus:text-gray-700 focus:border-slate-600 text-center"
+                                required
                             />
                         </div>
                         <div className="">
@@ -264,10 +332,10 @@ export default function CreateListing() {
                                 id="longitude"
                                 value={longitude}
                                 onChange={onChange}
-                                required
                                 min="-180"
                                 max="180"
                                 className="w-full px-4 py-2 text-xl text-gray-700 bg-white border border-gray-300 rounded transition duration-150 ease-in-out focus:bg-white focus:text-gray-700 focus:border-slate-600 text-center"
+                                required
                             />
                         </div>
                     </div>
