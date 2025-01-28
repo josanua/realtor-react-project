@@ -5,8 +5,10 @@ import {getStorage, ref, uploadBytesResumable, getDownloadURL} from "firebase/st
 import {getAuth} from "firebase/auth";
 import {addDoc, collection, serverTimestamp} from "firebase/firestore";
 import {db} from "../firebase.js";
+import {useNavigate} from "react-router-dom";
 
 export default function CreateListing() {
+    const navigate = useNavigate();
     const auth = getAuth();
     const [geolocationEnabled, setGeolocationEnabled] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -65,7 +67,6 @@ export default function CreateListing() {
                 ...prevState,
                 [e.target.id]: boolean ?? e.target.value,
             }));
-            // console.log(e.target.value);
         }
     } // onChange
 
@@ -73,7 +74,7 @@ export default function CreateListing() {
         e.preventDefault();
         setLoading(true);
 
-        if (discountedPrice >= regularPrice) {
+        if (+discountedPrice >= +regularPrice) {
             setLoading(false);
             toast.error("Discounted price must be lower than regular price");
         }
@@ -122,6 +123,7 @@ export default function CreateListing() {
                         // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
                         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                         console.log('Upload is ' + progress + '% done');
+
                         switch (snapshot.state) {
                             case 'paused':
                                 console.log('Upload is paused');
@@ -167,10 +169,8 @@ export default function CreateListing() {
         const docRef = await addDoc(collection(db, "listings"), formDataCopy);
         setLoading(false);
         toast.success("Listing created successfully");
-        setTimeout(() => {
-            window.location.href = "/";
-        }, 1000);
 
+        navigate(`/category/${formDataCopy.type}/${docRef.id}`);
     }
 
     if (loading) {
