@@ -1,0 +1,12 @@
+name: Bravo Test
+
+on: [push]
+
+jobs:
+  say-bravo:
+    runs-on: ubuntu-latest
+    
+    steps: 
+      - name: Bravo Test Message
+        run: echo "Bravo test message 👏"
+    
