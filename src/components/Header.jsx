@@ -8,7 +8,7 @@ export default function Header() {
     const navigate = useNavigate();
     const auth = getAuth();
 
-    console.log(location);
+    console.log('Location: ' + location.pathname);
 
     useEffect(() => {
         onAuthStateChanged(auth, (user) => {
